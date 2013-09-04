@@ -74,12 +74,43 @@
                         <li class="attention">
                             <button id="terminate-button-top"><i class="icon-ban-circle"></i> Terminate</button>
                         </li>
+                        <li class="attention">
+                            <button id="autoscale-button-top"><i class="icon-plus"></i> Autoscale</button>
+                        </li>
                     </ul>
                 </div>
                 <div id="terminate-dialog">
                     <p>
                         Are you sure you want to terminate all virtual machines running in this deployment?
                     </p>
+                </div>
+                <div id="autoscale-dialog">
+        			<form
+        			    action=""
+        			    method="post"
+        				accept-charset="utf-8"
+        				id="form-autoscale">
+                	    <div>
+    						<table>
+    							<tbody>
+    							    <tr>
+        							    <th>Node</th>
+        							    <th>Variation</th>
+    							    </tr>
+    								<tr>
+    								    <td>
+    								        <select id="autoscale-nodename" name="autoscale-nodename">
+    								            <option>wp</option>
+    								        </select>
+								        </td>
+                                        <td>
+                                            <input type="text" name="autoscale-variation" value="2">
+                                        </td>
+                                    </tr>
+            					</tbody>
+            				</table>
+    	                </div>
+                    </form>
                 </div>
                 <div class="data_sheet">
                     <div class="summary accordion">

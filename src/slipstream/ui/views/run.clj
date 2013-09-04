@@ -99,6 +99,12 @@
   runtime-parameters-header-sel nil
   runtime-parameters-sel nil
 
+  [:#autoscale-nodename :> :option] (html/clone-for
+                                      [nodename (run-model/nodenames run)]
+                                      (html/do->
+                                        (html/set-attr :value nodename)
+                                        (html/content nodename)))
+  
   [:#reports :> :iframe] (html/set-attr :src (str "/reports/" (:uuid (common-model/attrs run)))))
 
 ;; CSS inclusion

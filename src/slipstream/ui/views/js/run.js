@@ -49,4 +49,27 @@ $(document).ready(function() {
 		return false;
 	})
 	
+    // Autoscale
+    $('#autoscale-button-top, #autoscale-button-bottom').click(function(event){
+    	$$.hideError();
+		$("#autoscale-dialog").dialog('open');
+		return false;
+    });	
+
+	$('#autoscale-dialog').dialog({
+		autoOpen: false,
+		modal: true,
+		title: "Autoscale (Manually ;-)",
+		buttons: {
+			"Autoscale": function(event) {
+				$(this).dialog("close");
+        		$$.send($("#form-autoscale"), event, $.post, function(){});
+				return false;
+			},
+			"Cancel": function() {
+				$(this).dialog("close");
+			},
+		}
+	});
+	
 })

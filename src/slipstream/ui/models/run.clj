@@ -1,5 +1,6 @@
 (ns slipstream.ui.models.run
-  (:require [net.cgrand.enlive-html :as html]
+  (:require [clojure.string :as string]
+            [net.cgrand.enlive-html :as html]
             [slipstream.ui.models.common :as common]
             [slipstream.ui.models.module :as module]))
 
@@ -42,3 +43,16 @@
 (defn parameters
   [run]
   (common/parameters run))
+
+(defn nodenames
+  "Turn the groups into a list of node names, not
+   qualified by orchestrator"
+  [run]
+  (let [groups (:groups (attrs run))] 
+    (filter 
+      #(not (empty? %)) 
+      (map #(last (string/split % #":"))
+           (map 
+             string/trim
+             (string/split groups #","))))))
+
