@@ -25,14 +25,6 @@ $(document).ready(function() {
 		window.location = '?edit=true';
     });	
 	
-    // Run
-    $('#run-button-top, #run-button-bottom').click(function(event){
-    	$$.hideError();
-		$$.showSubmitMessage("Executing Deployment");
-		$$.send($("#form-run"), event, $.post);
-		return false;
-    });	
-
     // Run...
     $('#run-with-options-button-top, #run-with-options-button-bottom').click(function(event){
     	$$.hideError();

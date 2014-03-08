@@ -1,5 +1,6 @@
 (ns slipstream.ui.models.user
-  (:require [net.cgrand.enlive-html :as html]))
+  (:require [net.cgrand.enlive-html :as html]
+            [slipstream.ui.models.common :as common]))
 
 (def sel-user 
   #{[:tag "user"]})
@@ -21,3 +22,6 @@
   
 (defn username [metadata]
   (:name (attrs metadata)))
+
+(defn default-cloud [metadata]
+  (common/parameter-enum-select-value metadata "General.default.cloud.service"))

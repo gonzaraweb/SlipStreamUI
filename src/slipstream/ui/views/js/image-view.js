@@ -36,13 +36,31 @@ $(document).ready(function() {
         return $$.send($(this), event, $.post);
     });
 	
-	// Run
-    $('#run-button-top, #run-button-bottom').click(function(event){
+    // Run...
+    $('#run-with-options-button-top, #run-with-options-button-bottom').click(function(event){
     	$$.hideError();
-		$$.showSubmitMessage("Starting Image");
-		$$.send($("#run-form"), event, $.post);
+		$("#run-with-options-dialog").dialog('open');
 		return false;
     });	
+
+	$('#run-with-options-dialog').dialog({
+		autoOpen: false,
+		modal: true,
+		width: 1000,
+		title: "Execute Deployment",
+		buttons: {
+			"Run": function(event) {
+				$(this).dialog("close");
+        		$$.showSubmitMessage("Executing Deployment");
+        		$("#refqname").val($("#module-name").text());
+        		$$.send($("#form-run-with-options"), event, $.post);
+				return false;
+			},
+			"Cancel": function() {
+				$(this).dialog("close");
+			},
+		}
+	});
 	
     // Publish button
     $('#publish-button-top, #publish-button-bottom').click(function(event){

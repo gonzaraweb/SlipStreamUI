@@ -21,6 +21,18 @@
 (defn parameter [elem parameter-name]
   (filter #(= parameter-name (:name (:attrs %))) (parameters elem)))
 
+(defn parameter-enum-select-value
+  [elem parameter-name]
+  (first
+    (:content
+      (first
+        (html/select
+          (->
+            (slipstream.ui.models.common/parameter elem parameter-name)
+            first
+            :content)
+          [:value])))))
+
 (defn parameter-mappings [elem]
   (html/select elem [:parameterMappings :nodeParameter]))
 
