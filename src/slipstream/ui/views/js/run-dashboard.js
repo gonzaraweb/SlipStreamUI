@@ -50,7 +50,7 @@ function init(){
 
 	var cloudServiceNodesMap = function() {
 		var map = {};
-		var nodeGroups = $("#" + "ss\\:groups").text().split(", ");
+		var nodeGroups = $("#" + "ss\\:groups").text().split(",");
 		for(var index in nodeGroups) {
 			var nodeGroup = nodeGroups[index].trim();
 			if(!nodeGroup) {
@@ -128,14 +128,28 @@ function init(){
 	};
 
 	var addNode = function(nodeName, multiplicity, orchestrator) {
-		nodeName = nodeName.trim();
+		var nodeName = nodeName.trim();
 		var node = {name: nodeName, id: "id_" + nodeName, data: {type: "node"}, children: []};
-		addVm($("#" + nodeName + "\\.1\\:multiplicity").text(), node);
+		var idList = $("#" + nodeName + "\\:ids").text()
+
+		if (idList.length == 0){
+		    idList = '';
+		    var multiplicity = $("#" + nodeName + "\\.1\\:multiplicity").text()
+		    for (var i=1; i < parseInt(multiplicity); i++) {
+		        idList += i + ',';
+		    }
+		    idList += multiplicity;
+		}
+
+		addVm(idList, node);
 		orchestrator.children.push(node);
 	};
 
-	var addVm = function(multiplicity, node) {
-		for(var i=1;i<=multiplicity;i++) {
+	var addVm = function(ids, node) {
+	    if (ids == '') return;
+	    var idsList = ids.split(',')
+		for (var index = 0; index < idsList.length; ++index) {
+		    var i = idsList[index];
 			node.children.push({name: node.name + "." + i, id: "id_" + node.name + "." + i, data: {type: "vm"}});
 		}
 	};
@@ -201,7 +215,6 @@ function init(){
 			}
 	        if(node.data.type === "orchestrator") {
 				tip.innerHTML += "<div class=\"tip-text\"><b>ip: " + getRuntimeValue(node.name, "hostname") + "</b></div>"
-					+ "<div class=\"tip-text\">vm (cloud) state: " + getRuntimeValue(node.name, "vmstate") + "</div>"
 					+ "<div class=\"tip-text\">instance id: " + getRuntimeValue(node.name, "instanceid") + "</div>";
 			}
 	        if(node.data.type === "node") {
@@ -209,7 +222,6 @@ function init(){
 			}
 	        if(node.data.type === "vm") {
 				tip.innerHTML += "<div class=\"tip-text\"><b>ip: " + getRuntimeValue(node.name, "hostname") + "</b></div>"
-					+ "<div class=\"tip-text\">vm (cloud) state: " + getRuntimeValue(node.name, "vmstate") + "</div>"
 					+ "<div class=\"tip-text\">instance id: " + getRuntimeValue(node.name, "instanceid") + "</div>"
 					+ "<div class=\"tip-text\">msg: " + getRuntimeValue(node.name, "statecustom") + "</div>";
 			}
@@ -259,7 +271,7 @@ function init(){
 				label.innerHTML = "<div class='dashboard-icon dashboard-orchestrator " + this.nodeCssClass(node.name) + "' id='" + idprefix + "'><div id='" + idprefix + "'/> \
 					<ul class='vm " + this.vmCssClass(node.name) + "' style='list-style-type:none'> \
 						<li id='" + idprefix + "-name'><b>" + node.name + "</b></li> \
-					 	<li id='" + idprefix + "-state'>State: " + this.getTruncatedState(node.name) + "</li> \
+					 	<li id='" + idprefix + "-state'>VM is ...</li> \
 					</ul></div>";
 			}
 
@@ -276,7 +288,7 @@ function init(){
 				label.innerHTML = "<div class='dashboard-icon dashboard-image " + this.nodeCssClass(node.name) + "' id='" + idprefix + "'> \
 					<ul class='vm " + this.vmCssClass(node.name) + "' style='list-style-type:none'> \
 				 		<li id='" + idprefix + "-name'><b>" + node.name + "</b></li> \
-				 		<li id='" + idprefix + "-state'>State: " + this.getTruncatedState(node.name) + "</li> \
+				 		<li id='" + idprefix + "-state'>VM is ...</li> \
 					 	<li id='" + idprefix + "-statecustom'>" + dashboardUpdater.truncate(getRuntimeValue(node.name, 'statecustom')) + "</li> \
 					</ul></div>";
 			}

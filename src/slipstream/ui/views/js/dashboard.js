@@ -26,41 +26,52 @@ $(document).ready(function() {
     };
     $.get("/vms", fillVms, "html");
 
-    var OPTIONS = {
-        "1h": {
-            rollup: 600,            // 10 minutes, in seconds
-            period: 60*60           // 1 hour, in seconds
-        },
-        "1d": {
-            rollup: 3600,           // 1 hours, in seconds
-            period: 60*60*24        // 1 day, in seconds
-        },
-        "7d": {
-            rollup: 86400,          // 1 day, in seconds
-            period: 60*60*24*7      // 7 days, in seconds
-        },
-        "30d": {
-            rollup: 86400,          // 1 day, in seconds
-            period: 60*60*24*30     // 30 days, in seconds
-        }
-    };
-
     function drawHistograms(panel) {
         if (panel === undefined) {
             var panel_idx = $("#metering").tabs('option', 'active');
             panel = $("#metering .ui-tabs-panel").get(panel_idx);
         }
-        var opt_idx = $("#metering-selector option:selected").val();
-        var opt = OPTIONS[opt_idx];
 
-        $(panel).metrics({
-            params: {
-                period: opt["rollup"],
-                groupby: "source",
-                start_timestamp: Math.ceil(new Date() / 1000) - opt["period"],
-                end_timestamp: Math.ceil(new Date() / 1000)
-            }
-        });
+        var from = $("#metering-selector option:selected").val(),
+            options = {
+                'from': "-" + from + 's',
+            };
+        // Fixes GH-164 (https://github.com/slipstream/SlipStreamServer/issues/164)
+        // Smooths the graph dependeing on which period we retrieving data from.
+        // The online loop send data each 10 seconds whereas the online loop send
+        // data each 4 minutes (240 seconds).
+        if (from <= 6 * 60 * 60) {
+            // For the 10 seconds resolution over 6 hours period
+            // we smooth the graph for 24 points (240/10) at most.
+            // We also grab more points to fill possible gap between
+            // points that we remove before displaying the graph.
+            options.target_func = function(target) {
+                return 'keepLastValue(' + target + ',24)';
+            };
+            options.transform_func = function(series) {
+                var _series = {};
+                $.each(series, function(service, series) {
+                    _series[service] = series.slice(24);
+                });
+                return _series;
+            };
+        } else if (from <= 7 * 24 * 60 * 60) {
+            // For the 1 minute (60 seconds) resolution over 7 days period
+            // we smooth the graph for 4 points (240/60) at most.
+            // We also grab more points to fill possible gap between
+            // points that we remove before displaying the graph.
+            options.target_func = function(target) {
+                return 'keepLastValue(' + target + ',4)';
+            };
+            options.transform_func = function(series) {
+                var _series = {};
+                $.each(series, function(service, series) {
+                    _series[service] = series.slice(4);
+                });
+                return _series;
+            };
+        }
+        $(panel).metrics(options);
     }
 
     function drawGauges(panel) {
@@ -70,9 +81,9 @@ $(document).ready(function() {
               id: elem.id,
               value: $elem.data('quota-current'),
               min: 0,
-              max: $elem.data('quota-max') || 100,
+              max: $elem.data('quota-max') || 20,
               title: $elem.data('quota-title'),
-              levelColorsGradient: false
+              levelColorsGradient: true
             });
         });
     }
@@ -81,12 +92,14 @@ $(document).ready(function() {
         drawHistograms();
     });
 
+	drawGauges($( "#usage" ).newPanel);
+
     $(".accordion").on("accordionactivate", function(event, ui) {
         if (ui.newPanel.length) {
             if (ui.newPanel[0].id == "metering") {
                 drawHistograms();
             }
-            if (ui.newPanel[0].id == "quota") {
+            if (ui.newPanel[0].id == "usage") {
                 drawGauges(ui.newPanel);
             }
         }
@@ -96,7 +109,7 @@ $(document).ready(function() {
         drawHistograms(ui.newPanel);
     });
 
-    $("#quota").on("tabsactivate", function(event, ui) {
+    $("#usage").on("tabsactivate", function(event, ui) {
         drawGauges(ui.newPanel);
     });
 });

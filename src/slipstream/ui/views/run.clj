@@ -29,6 +29,10 @@
   [runid]
   (apply str (take take-run-no-of-chars runid)))
 
+(defn header-url-service-link
+  []
+  (html/html-snippet "<div><div id='header-title-link' class='url-service-unset'><a href='#'><i class='icon-external-link'></i></a></div></div>"))
+
 (html/defsnippet header-snip header/header-template-html header/header-sel
   [run]
   header/header-summary-sel
@@ -39,19 +43,21 @@
           state (:state attrs)
           category (:category attrs)]
       (header/header-titles-snip
-        id
+        (str id " is " (.toUpperCase state))
         module
         (str "State: " state)
         category)))
 
   header/header-top-bar-sel (html/substitute
                               (header/header-top-bar-snip
-                                (user-model/attrs run))))
+                                (user-model/attrs run)))
+
+  [:#titles :> :div] (html/before (header-url-service-link)))
 
 (defn- clone-runtime-parameters
   [parameters]
   (html/clone-for
-    [parameter parameters
+    [parameter (common-model/sort-by-key parameters)
      :let
      [attrs (common-model/attrs parameter)
       name (:key attrs)
@@ -62,7 +68,6 @@
     [[:td (html/nth-of-type 3)]] (html/do->
                                    (html/content value)
                                    (html/set-attr :id (clojure.string/replace name #":" "\\:")))))
-
 
 (html/defsnippet runtime-parameters-snip runtime-parameters-template-html [:#fragment-parameters-something]
   [parameters]
@@ -86,6 +91,7 @@
   [:#account] (html/content (:user (common-model/attrs run)))
   [:#start] (html/content (:starttime (common-model/attrs run)))
   [:#end] (html/content (:endtime (common-model/attrs run)))
+  [:#laststatechange] (html/content (:laststatechangetime (common-model/attrs run)))
   [:#state] (html/content (:state (common-model/attrs run)))
   [:#runtype] (html/content (run-model/get-type run))
   [:#uuid] (html/content (:uuid (common-model/attrs run)))

@@ -26,6 +26,8 @@
 (def image-deployment-sel [:#deployment])
 (def image-deployment-header-sel [:#deployment-header])
 (def deployment-parameter-categories ["Input" "Output"])
+(def parameter-cloudservice-name "parameter--cloudservice")
+(def cloudservice-sel [(keyword (str "#" parameter-cloudservice-name))])
 
 (def platforms
   ["centos"
@@ -39,6 +41,24 @@
    "other"])
 
 ;; View
+
+(html/defsnippet run-with-options-dialog-snip image-view-template-html module-base/run-with-options-dialog-sel
+  [module]
+  [:select]
+  (html/substitute
+    (common/gen-select
+      "parameter--cloudservice"
+      (module-model/available-clouds module)
+      (-> module user-model/default-cloud))))
+
+(html/defsnippet build-with-options-dialog-snip image-view-template-html module-base/build-with-options-dialog-sel
+  [module]
+  [:select]
+  (html/substitute
+    (common/gen-select
+      "parameter--cloudservice"
+      (module-model/available-clouds module)
+      (-> module user-model/default-cloud))))
 
 (defn- creation-trans
   [recipe prerecipe packages view?]
@@ -117,7 +137,7 @@
   (creation-trans recipe prerecipe packages false))
 
 (defn- deployment-trans
-  [execute report parameters parameters-gen-fn]
+  [execute report onvmadd onvmremove parameters parameters-gen-fn]
   (html/transformation
     [:ul :> :#fragment-deployment-execute-header]
     (if (string/blank? execute)
@@ -129,6 +149,14 @@
       identity)
     [:ul :> :#fragment-deployment-parameters-header]
     (if (empty? parameters)
+      nil
+      identity)
+    [:ul :> :#fragment-deployment-onvmadd-header]
+    (if (string/blank? onvmadd)
+      nil
+      identity)
+    [:ul :> :#fragment-deployment-onvmremove-header]
+    (if (string/blank? onvmremove)
       nil
       identity)
 
@@ -151,15 +179,29 @@
     [:#fragment-deployment-parameters]
     (if (empty? parameters)
       nil
+      identity)
+
+    [:#onvmadd]
+    (html/content onvmadd)
+    [:#fragment-deployment-onvmadd]
+    (if (string/blank? onvmadd)
+      nil
+      identity)
+
+    [:#onvmremove]
+    (html/content onvmremove)
+    [:#fragment-deployment-onvmremove]
+    (if (string/blank? onvmremove)
+      nil
       identity)))
 
 (html/defsnippet deployment-view-snip image-view-template-html image-deployment-sel
-  [execute report parameters]
-  (deployment-trans execute report parameters common/parameters-view-with-name-and-category-snip))
+  [execute report onvmadd onvmremove parameters]
+  (deployment-trans execute report onvmadd onvmremove parameters common/parameters-view-with-name-and-category-snip))
 
 (html/defsnippet deployment-edit-snip image-edit-template-html image-deployment-sel
-  [execute report parameters]
-  (deployment-trans execute report parameters common/parameters-edit-all-snip))
+  [execute report onvmadd onvmremove parameters]
+  (deployment-trans execute report onvmadd onvmremove parameters common/parameters-edit-all-snip))
 
 ;; Edit
 
@@ -188,7 +230,9 @@
      super? (user-model/super? user)
      published? (module-model/published? module)]
     (html/transformation
-      #{[:#build-button-top] [:#build-button-bottom]}
+      #{[:#build-with-options-button-top] [:#build-with-options-button-bottom]}
+      (authz-button can-post?)
+      #{[:#run-with-options-button-top] [:#run-with-options-button-bottom]}
       (authz-button can-post?)
       #{[:#edit-button-top] [:#edit-button-bottom] [:#save-button-top] [:#save-button-bottom]}
       (authz-button can-put?)
@@ -213,6 +257,14 @@
                                    (module-base/module-summary-view-snip module))
 
   [[:input (html/attr-has :name "refqname")]] (html/set-attr :value (common-model/resourceuri module))
+
+  module-base/run-with-options-dialog-sel
+    (html/substitute
+      (run-with-options-dialog-snip module))
+
+  module-base/build-with-options-dialog-sel
+    (html/substitute
+      (build-with-options-dialog-snip module))
 
   [image-image-ids-sel :> [:div html/first-of-type]]
     (html/clone-for
@@ -262,6 +314,8 @@
                          (deployment-view-snip
                            (image-model/deployment-execute module)
                            (image-model/deployment-report module)
+                           (image-model/deployment-onvmadd module)
+                           (image-model/deployment-onvmremove module)
                            (common-model/filter-by-categories
                              (common-model/parameters module)
                              deployment-parameter-categories)))
@@ -349,6 +403,8 @@
                          (deployment-edit-snip
                            (image-model/deployment-execute module)
                            (image-model/deployment-report module)
+                           (image-model/deployment-onvmadd module)
+                           (image-model/deployment-onvmremove module)
                            (common-model/filter-by-categories
                              (common-model/parameters module)
                              deployment-parameter-categories)))

@@ -441,7 +441,8 @@
            description (:description attrs)
            type (:type attrs)
            defaultvalue (:defaultvalue attrs)
-           tr-id (tr-id category i)
+           tr-id (tr-id name i)
+           readonly? (= "true" (:readonly attrs))
            value (set-input-value parameter tr-id)
            help (parameter-help parameter)]]
     html/this-node (html/set-attr :id tr-id)
@@ -463,7 +464,10 @@
         (input-name-description tr-id)
         description)
     [[:td (html/nth-of-type 2)] :> :input] 
-      (html/substitute value)
+        (if readonly?
+          (html/do-> (html/substitute value)
+                     (html/set-attr :disabled "disabled"))
+          (html/substitute value))
     [[:td (html/nth-of-type 3)] :> :span] (html/content help)
     [[:td (html/nth-of-type 3)]] (if (empty? help)
                                    (html/content "")
@@ -477,7 +481,7 @@
            attrs (common-model/attrs parameter)
            name (:name attrs)
            category (:category attrs)
-           tr-id (tr-id category i)
+           tr-id (tr-id name i)
            category-select (gen-select
                              (set-input-name-category tr-id) 
                              ["Input" "Output"]
@@ -519,7 +523,7 @@
            attrs (common-model/attrs parameter)
            name (:name attrs)
            category (:category attrs)
-           tr-id (tr-id category i)
+           tr-id (tr-id name i)
            description (:description attrs)
            type (:type attrs)
            defaultvalue (:defaultvalue attrs)
@@ -655,3 +659,22 @@
   (html/do->
     (html/content message)
     (html/add-class "empty-section")))
+
+(defn ellipse-left
+  [s max]
+  (let [l (count s)
+        pre "..."
+        pre-l (count pre)]
+  (if (> l max)
+    (str "..." (apply str (take-last (- max pre-l) s)))
+    s)))
+
+(defn ellipse-right
+  [s max]
+  (let [l (count s)
+        post "..."
+        post-l (count post)]
+  (if (> l max)
+    (str (apply str (take (- max post-l) s)) "...")
+    s)))
+

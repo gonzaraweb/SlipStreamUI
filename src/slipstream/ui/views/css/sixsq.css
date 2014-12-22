@@ -45,6 +45,10 @@ body *, body :focus, a {
 	outline: none;
 }
 
+emp {
+	font-weight: bold;
+}
+
 table {
     table-layout: fixed;
 }
@@ -71,6 +75,13 @@ td {
 /* Selects lines that have a header followed by a td*/
 th+td {
     width: 75%;
+}
+
+.module-logo {
+	float: right;
+	max-width: 250px;
+	max-height: 100px;
+	margin: 0 30px 40px 20px;	
 }
 
 #warning-bar {
@@ -100,11 +111,39 @@ th+td {
 	display: none;
 }
 
+#header-title-sub > a {
+    color: white;
+}
+
+#header-title-extra {
+    color: orange;
+    padding-top: 5px;
+}
+
 #content {
 	float: none;
 	/* width: 980px; */
 	width: 100%; /* liquid layout */
 	margin: 0px auto 0px auto;
+}
+
+#header-title-link {
+    padding: 0px 20px 0px 0px;
+    font-size: 8em;
+    float: right;
+    color: #50a7de;
+}
+
+.url-service-unset {
+    visibility: hidden;
+}
+
+.url-service-set {
+    visibility: visible;
+}
+
+.url-service-set a {
+	color: #50a7de;
 }
 
 /* Main menu */
@@ -431,7 +470,7 @@ th+td {
 	margin: 5px 0 0 0;
 	border-bottom: 1px solid #515151;
 	padding-bottom: 0;
-	font-size: 3.167em;/*38px*/
+	font-size: 2.5em;
 	/*color: #50a7de;*/
 	color: white;
 	font-family: 'helveticaneueltstdmdcn', 'Arial Narrow', 'Arial', sans-serif;
@@ -714,6 +753,8 @@ ul.interaction li {
 .ui-button {
 	background-color: #17025C;
 	color: #ffffff;
+  margin-right: 5px;
+  margin-bottom: 5px;
 }
 
 .ui-dialog-buttonset .ui-button {
@@ -1285,6 +1326,10 @@ html body .small_delete {
 
 /*ERROR*/
 
+.error-value {
+	color: red !important;
+}
+
 .message {
     margin: 15px 20px 10px 20px;
 	padding: 0 15px;
@@ -1464,4 +1509,28 @@ th.remove {
 
 #nodes th:nth-of-type(3) {
     width: 16px;
+}
+
+.icon-circle {
+    color: gray;
+}
+
+.online {
+    color: green;
+}
+
+.progress-bar {
+	color: orange;
+	width: 975px;
+	margin: 0px auto;
+	background-color: white;
+	position:relative;
+	top:-15px;
+	margin-left: 7px;
+	height: 10px;
+	
+
+	border-radius: 0px 0px 3px 3px;
+	-moz-border-radius: 0px 0px 3px 3px;
+	-webkit-border-radius: 0px 0px 3px 3px;
 }
